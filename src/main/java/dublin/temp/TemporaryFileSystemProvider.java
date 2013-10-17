@@ -216,6 +216,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -229,7 +230,8 @@ import java.util.Set;
  */
 public class TemporaryFileSystemProvider extends FileSystemProvider {
 
-    private static final String SCHEME = "tmp:/";
+    static final String SCHEME = "tmp://";
+    static FileSystem NON_THREAD_SAFE_FILE_SYSTEM;
 
 	/* (non-Javadoc)
 	 * @see java.nio.file.spi.FileSystemProvider#getScheme()
@@ -243,10 +245,18 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 * @see java.nio.file.spi.FileSystemProvider#newFileSystem(java.net.URI, java.util.Map)
 	 */
 	@Override
-	public FileSystem newFileSystem(URI uri, Map<String, ?> env)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+
+        if(uri.getScheme() != SCHEME) {
+            throw new IOException("Can't create a temporal file system from the given URI");
+        }
+
+        if (NON_THREAD_SAFE_FILE_SYSTEM == null) {
+            NON_THREAD_SAFE_FILE_SYSTEM = new TemporaryFileSystem(this);
+        }
+
+        return NON_THREAD_SAFE_FILE_SYSTEM;
+
 	}
 
 	/* (non-Javadoc)
@@ -254,8 +264,19 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public FileSystem getFileSystem(URI uri) {
-		// TODO Auto-generated method stub
-		return null;
+
+		FileSystem fileSystem = null;
+
+        try {
+
+            fileSystem = newFileSystem(uri, null);
+
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return fileSystem;
+
 	}
 
 	/* (non-Javadoc)
@@ -263,16 +284,14 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public Path getPath(URI uri) {
-		// TODO Auto-generated method stub
-		return null;
+		return new TemporaryPath(uri, NON_THREAD_SAFE_FILE_SYSTEM);
 	}
 
 	@Override
 	public SeekableByteChannel newByteChannel(Path path,
 			Set<? extends OpenOption> options, FileAttribute<?>... attrs)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.newByteChannel(path, options, attrs);
 	}
 
 	/* (non-Javadoc)
@@ -281,8 +300,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public DirectoryStream<Path> newDirectoryStream(Path dir,
 			Filter<? super Path> filter) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.newDirectoryStream(dir, filter);
 	}
 
 	/* (non-Javadoc)
@@ -291,8 +309,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public void createDirectory(Path dir, FileAttribute<?>... attrs)
 			throws IOException {
-		// TODO Auto-generated method stub
-
+        Files.createDirectory(dir, attrs);
 	}
 
 	/* (non-Javadoc)
@@ -300,8 +317,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public void delete(Path path) throws IOException {
-		// TODO Auto-generated method stub
-
+        Files.delete(path);
 	}
 
 	/* (non-Javadoc)
@@ -310,8 +326,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public void copy(Path source, Path target, CopyOption... options)
 			throws IOException {
-		// TODO Auto-generated method stub
-
+        Files.copy(source, target, options);
 	}
 
 	/* (non-Javadoc)
@@ -320,8 +335,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public void move(Path source, Path target, CopyOption... options)
 			throws IOException {
-		// TODO Auto-generated method stub
-
+        Files.move(source, target, options);
 	}
 
 	/* (non-Javadoc)
@@ -329,8 +343,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public boolean isSameFile(Path path, Path path2) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+        return Files.isSameFile(path, path2);
 	}
 
 	/* (non-Javadoc)
@@ -338,8 +351,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public boolean isHidden(Path path) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+        return Files.isHidden(path);
 	}
 
 	/* (non-Javadoc)
@@ -347,8 +359,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public FileStore getFileStore(Path path) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.getFileStore(path);
 	}
 
 	/* (non-Javadoc)
@@ -356,7 +367,6 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	 */
 	@Override
 	public void checkAccess(Path path, AccessMode... modes) throws IOException {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -366,8 +376,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public <V extends FileAttributeView> V getFileAttributeView(Path path,
 			Class<V> type, LinkOption... options) {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.getFileAttributeView(path, type, options);
 	}
 
 	/* (non-Javadoc)
@@ -376,8 +385,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public <A extends BasicFileAttributes> A readAttributes(Path path,
 			Class<A> type, LinkOption... options) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.readAttributes(path, type, options);
 	}
 
 	/* (non-Javadoc)
@@ -386,8 +394,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public Map<String, Object> readAttributes(Path path, String attributes,
 			LinkOption... options) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+        return Files.readAttributes(path, attributes, options);
 	}
 
 	/* (non-Javadoc)
@@ -396,9 +403,7 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public void setAttribute(Path path, String attribute, Object value,
 			LinkOption... options) throws IOException {
-		// TODO Auto-generated method stub
-
+        Files.setAttribute(path, attribute, value, options);
 	}
-
 
 }

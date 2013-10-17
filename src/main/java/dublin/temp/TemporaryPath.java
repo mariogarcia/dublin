@@ -210,6 +210,7 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
@@ -218,162 +219,156 @@ import java.util.Iterator;
 
 public class TemporaryPath implements Path {
 
+    private URI universalPath;
+    private FileSystem temporalFileSystem;
+
+    public TemporaryPath(URI name, FileSystem temporalFileSystem) {
+        this.universalPath = name;
+        this.temporalFileSystem = temporalFileSystem;
+    }
+
 	@Override
 	public FileSystem getFileSystem() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.temporalFileSystem;
 	}
 
 	@Override
 	public boolean isAbsolute() {
-		// TODO Auto-generated method stub
-		return false;
+		return universalPath.isAbsolute();
 	}
 
 	@Override
 	public Path getRoot() {
-		// TODO Auto-generated method stub
-		return null;
+		return Paths.get(System.getProperty("java.io.tmpdir"));
 	}
 
 	@Override
 	public Path getFileName() {
-		// TODO Auto-generated method stub
-		return null;
+
+        int nameCount = this.getNameCount();
+
+		return this.getName(nameCount - 1);
+
 	}
 
 	@Override
 	public Path getParent() {
-		// TODO Auto-generated method stub
-		return null;
+
+        boolean isRoot = this.compareTo(getRoot()) == 0;
+
+		return isRoot ? null : this.getTemporalPathFromFile().getParent();
+
 	}
 
 	@Override
 	public int getNameCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.getTemporalPathFromFile().getNameCount();
 	}
 
 	@Override
 	public Path getName(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().getName(index);
 	}
 
 	@Override
 	public Path subpath(int beginIndex, int endIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().subpath(beginIndex, endIndex);
 	}
 
 	@Override
 	public boolean startsWith(Path other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getTemporalPathFromFile().startsWith(other);
 	}
 
 	@Override
 	public boolean startsWith(String other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getTemporalPathFromFile().startsWith(other);
 	}
 
 	@Override
 	public boolean endsWith(Path other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getTemporalPathFromFile().endsWith(other);
 	}
 
 	@Override
 	public boolean endsWith(String other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getTemporalPathFromFile().endsWith(other);
 	}
 
 	@Override
 	public Path normalize() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().normalize();
 	}
 
 	@Override
 	public Path resolve(Path other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().resolve(other);
 	}
 
 	@Override
 	public Path resolve(String other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().resolve(other);
 	}
 
 	@Override
 	public Path resolveSibling(Path other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().resolveSibling(other);
 	}
 
 	@Override
 	public Path resolveSibling(String other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().resolveSibling(other);
 	}
 
 	@Override
 	public Path relativize(Path other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().relativize(other);
 	}
 
 	@Override
 	public URI toUri() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().toUri();
 	}
 
 	@Override
 	public Path toAbsolutePath() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().toAbsolutePath();
 	}
 
 	@Override
 	public Path toRealPath(LinkOption... options) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().toRealPath(options);
 	}
 
 	@Override
 	public File toFile() {
-		// TODO Auto-generated method stub
-		return null;
+        return new File(this.universalPath);
 	}
+
+    private Path getTemporalPathFromFile() {
+        return this.toFile().toPath();
+    }
 
 	@Override
 	public WatchKey register(WatchService watcher, Kind<?>[] events,
 			Modifier... modifiers) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().register(watcher, events, modifiers);
 	}
 
 	@Override
 	public WatchKey register(WatchService watcher, Kind<?>... events)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().register(watcher, events);
 	}
 
 	@Override
 	public Iterator<Path> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getTemporalPathFromFile().iterator();
 	}
 
 	@Override
 	public int compareTo(Path other) {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.getTemporalPathFromFile().compareTo(other);
 	}
 
 }

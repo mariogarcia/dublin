@@ -206,10 +206,17 @@ package dublin.temp;
 
 import java.io.IOException;
 import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.PathMatcher;
 import java.nio.file.spi.FileSystemProvider;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import dublin.core.AbstractFileSystem;
 
@@ -224,31 +231,32 @@ import dublin.core.AbstractFileSystem;
  */
 public class TemporaryFileSystem extends AbstractFileSystem {
 
+    private TemporaryFileSystemProvider provider;
+
+    TemporaryFileSystem(TemporaryFileSystemProvider provider) {
+        this.provider = provider;
+    }
+
 	/* (non-Javadoc)
 	 * @see java.nio.file.FileSystem#provider()
 	 */
 	@Override
 	public FileSystemProvider provider() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.provider;
 	}
 
 	/* (non-Javadoc)
 	 * @see java.nio.file.FileSystem#close()
 	 */
 	@Override
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
+	public void close() throws IOException { }
 
 	/* (non-Javadoc)
 	 * @see java.nio.file.FileSystem#isOpen()
 	 */
 	@Override
 	public boolean isOpen() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -256,7 +264,6 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public boolean isReadOnly() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -265,8 +272,7 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public String getSeparator() {
-		// TODO Auto-generated method stub
-		return null;
+		return System.getProperty("file.separator");
 	}
 
 	/* (non-Javadoc)
@@ -274,8 +280,21 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public Iterable<Path> getRootDirectories() {
-		// TODO Auto-generated method stub
-		return null;
+
+        Path uniqueRoot = null;
+        Iterable<Path> result = new ArrayList<Path>();
+
+        try {
+
+            uniqueRoot = new TemporaryPath(new URI(TemporaryFileSystemProvider.SCHEME), this);
+            result = Arrays.asList(uniqueRoot);
+
+        } catch (URISyntaxException exception) {
+            exception.printStackTrace();
+        }
+
+		return result;
+
 	}
 
 	/* (non-Javadoc)
@@ -283,8 +302,7 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public Iterable<FileStore> getFileStores() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<FileStore>();
 	}
 
 	/* (non-Javadoc)
@@ -292,8 +310,7 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public Set<String> supportedFileAttributeViews() {
-		// TODO Auto-generated method stub
-		return null;
+		return FileSystems.getDefault().supportedFileAttributeViews();
 	}
 
 	/* (non-Javadoc)
@@ -301,8 +318,11 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public Path getPath(String first, String... more) {
-		// TODO Auto-generated method stub
-		return null;
+
+        Path root = Paths.get(this.provider.getScheme(),first);
+
+		return Paths.get(root.toString(), more);
+
 	}
 
 	/* (non-Javadoc)
@@ -310,7 +330,6 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public PathMatcher getPathMatcher(String syntaxAndPattern) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

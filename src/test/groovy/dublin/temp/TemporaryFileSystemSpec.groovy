@@ -209,6 +209,7 @@ import spock.lang.Specification
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 
 /**
  * This class checks {@link dublin.ftp.FtpFileSystem} functionality
