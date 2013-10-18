@@ -212,33 +212,33 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 
 /**
- * This class checks {@link dublin.ftp.FtpFileSystem} functionality
+ * This class checks {@link dublin.temporary.TemporaryFileSystem} functionality
  *
  * @author marioggar
  * @since 0.1
  *
  */
-class FtpFileSystemSpec extends Specification {
+class TemporaryFileSystemSpec extends Specification {
 
-    def "Is ftp file system read-only"() {
-        when: "A remote ftp file system"
-            URI ftpFileURI = URI.create("tmp://localhost")
-            Map ftpFileSystemProperties = [:]
-            FileSystem ftpFileSystem = FileSystems.newFileSystem(ftpFileURI, ftpFileSystemProperties)
+    def "Is temporary file system read-only"() {
+        when: "A remote temporary file system"
+            URI temporaryFileURI = URI.create("tmp://localhost")
+            Map temporaryFileSystemProperties = [:]
+            FileSystem temporaryFileSystem = FileSystems.newFileSystem(temporaryFileURI, temporaryFileSystemProperties)
         then: "We should expect a given value"
-            ftpFileSystem.isReadOnly()
+            temporaryFileSystem.isReadOnly()
     }
 
-    def "Copying a ftp file to the local file system"() {
-        given: "A remote ftp file system"
-            URI ftpFileURI = URI.create("tmp://localhost")
-            Map ftpFileSystemProperties = [:]
-            FileSystem ftpFileSystem = FileSystems.newFileSystem(ftpFileURI, ftpFileSystemProperties)
+    def "Copying a temporary file to the local file system"() {
+        given: "A remote temporary file system"
+            URI temporaryFileURI = URI.create("tmp://localhost")
+            Map temporaryFileSystemProperties = [:]
+            FileSystem temporaryFileSystem = FileSystems.newFileSystem(temporaryFileURI, temporaryFileSystemProperties)
         and: "Both remote an local files"
-            Path localeFilePath = Paths.get("/tmp/ftp_file.txt")
-            Path ftpFilePath = ftpFileSystem.getPath("ftp_file.txt")
+            Path localeFilePath = Paths.get("/tmp/temporary_file.txt")
+            Path temporaryFilePath = temporaryFileSystem.getPath("ftp_file.txt")
         when: "Trying to copy the file to a local file"
-            Files.copyFile(ftpFilePath, localeFilePath)
+            Files.copyFile(temporaryFilePath, localeFilePath)
         then: "We should be able to check that the local file's been created successfully"
             localeFilePath.toFile().exists()
         and: "That the file has the proper content"

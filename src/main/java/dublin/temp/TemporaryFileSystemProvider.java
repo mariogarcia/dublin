@@ -230,7 +230,7 @@ import java.util.Set;
  */
 public class TemporaryFileSystemProvider extends FileSystemProvider {
 
-    static final String SCHEME = "tmp://";
+    static final String SCHEME = "tmp";
     static FileSystem NON_THREAD_SAFE_FILE_SYSTEM;
 
 	/* (non-Javadoc)
