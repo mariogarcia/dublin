@@ -207,6 +207,7 @@ package dublin.temp
 import spock.lang.Specification
 
 import java.nio.file.Path
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -225,8 +226,8 @@ class TemporaryFileSystemSpec extends Specification {
             URI temporaryFileURI = URI.create("tmp://localhost")
             Map temporaryFileSystemProperties = [:]
             FileSystem temporaryFileSystem = FileSystems.newFileSystem(temporaryFileURI, temporaryFileSystemProperties)
-        then: "We should expect a given value"
-            temporaryFileSystem.isReadOnly()
+        then: "The temporal file system is not readonly"
+            temporaryFileSystem.isReadOnly() == false
     }
 
     def "Copying a temporary file to the local file system"() {
@@ -235,14 +236,20 @@ class TemporaryFileSystemSpec extends Specification {
             Map temporaryFileSystemProperties = [:]
             FileSystem temporaryFileSystem = FileSystems.newFileSystem(temporaryFileURI, temporaryFileSystemProperties)
         and: "Both remote an local files"
-            Path localeFilePath = Paths.get("/tmp/temporary_file.txt")
-            Path temporaryFilePath = temporaryFileSystem.getPath("ftp_file.txt")
+            def timestamp = new Date().getTime()
+            Path sourcePath = temporaryFileSystem.getPath("source${timestamp}.txt")
+            Path destinationPath = Paths.get("/tmp/destination${timestamp}.txt")
+        and: "Creating the source file"
+            def sourceFile = sourcePath.toFile()
+            sourceFile.createNewFile()
+        and: "Writing some text into it"
+            sourceFile << "remote content"
         when: "Trying to copy the file to a local file"
-            Files.copyFile(temporaryFilePath, localeFilePath)
+            Files.copy(sourcePath, destinationPath)
         then: "We should be able to check that the local file's been created successfully"
-            localeFilePath.toFile().exists()
+            destinationPath.toFile().exists()
         and: "That the file has the proper content"
-            localeFilePath.toFile().text.contains "remote content"
+            destinationPath.toFile().text.contains "remote content"
     }
 
 }

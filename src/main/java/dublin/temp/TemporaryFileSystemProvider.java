@@ -247,8 +247,10 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	@Override
 	public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
 
-        if(uri.getScheme() != SCHEME) {
-            throw new IOException("Can't create a temporal file system from the given URI");
+        String passedScheme = uri.getScheme();
+
+        if(!passedScheme.equals(SCHEME)) {
+            throw new IOException("Can't create a temporal file system from the given URI: " + passedScheme);
         }
 
         if (NON_THREAD_SAFE_FILE_SYSTEM == null) {

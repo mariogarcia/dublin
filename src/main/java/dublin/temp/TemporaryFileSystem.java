@@ -319,9 +319,10 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	@Override
 	public Path getPath(String first, String... more) {
 
-        Path root = Paths.get(this.provider.getScheme(),first);
+        Path root = new TemporaryPath(this);
+        Path builtPath = Paths.get(root.toFile().getAbsolutePath(), first);
 
-		return Paths.get(root.toString(), more);
+		return Paths.get(builtPath.toString(), more);
 
 	}
 
