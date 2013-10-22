@@ -98,7 +98,7 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 
         try {
 
-            uniqueRoot = new TemporaryPath(new URI(TemporaryFileSystemProvider.SCHEME), this);
+            uniqueRoot = new TemporaryPath(new URI(TemporaryFileSystemProvider.SCHEME), this).getRoot();
             result = Arrays.asList(uniqueRoot);
 
         } catch (URISyntaxException exception) {
