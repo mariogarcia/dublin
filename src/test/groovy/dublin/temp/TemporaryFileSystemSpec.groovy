@@ -36,6 +36,28 @@ import java.nio.file.FileSystems
  */
 class TemporaryFileSystemSpec extends Specification {
 
+    def "Is the filesystem open"() {
+        given: "A temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+        expect: "The that file system is open"
+            temporaryFileSystem.isOpen()
+    }
+
+    def "Figuring out which is the default separator"() {
+        given: "A temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+        expect: "The separator is the same as the OS file system"
+            temporaryFileSystem.getSeparator() ==
+                System.getProperty("file.separator")
+    }
+
+    def "There is no file stores"() {
+        given: "A temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+        expect: "There is no file stores"
+            temporaryFileSystem.getFileStores().isEmpty()
+    }
+
     def "Is temporary file system read-only"() {
         when: "A remote temporary file system"
             FileSystem temporaryFileSystem = createTemporaryFileSystem()
@@ -49,7 +71,8 @@ class TemporaryFileSystemSpec extends Specification {
         and: "Both remote an local files"
             Long timestamp = generateNewTimestamp()
             Path sourcePath = temporaryFileSystem.getPath("source${timestamp}.txt")
-            Path destinationPath = Paths.get("/tmp/destination${timestamp}.txt")
+            String destinationFilename = "destination${timestamp}.txt"
+            Path destinationPath = Paths.get("/tmp/${destinationFilename}")
         and: "Creating the source file"
             sourcePath.toFile().createNewFile()
         and: "Writing some text into it"
@@ -60,6 +83,8 @@ class TemporaryFileSystemSpec extends Specification {
             destinationPath.toFile().exists()
         and: "That the file has the proper content"
             destinationPath.toFile().text.contains "remote content"
+        and: "Get filename from destinationPath"
+            destinationPath.getFileName().toString() == destinationFilename
     }
 
     def "Deleting a temporary file from the local file system"() {
@@ -85,6 +110,42 @@ class TemporaryFileSystemSpec extends Specification {
         then: "Checking that root path exists and it's the expected"
             Files.exists(rootPath, NOFOLLOW_LINKS)
             rootPath.toFile() == new File(System.getProperty("java.io.tmpdir"))
+        and: "Checking path is absolute"
+            rootPath.isAbsolute()
+    }
+
+    def "Get supported file attribute views"() {
+        given: "A remote temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+        when: "Getting the supported file attribute views"
+            Set<String> views = temporaryFileSystem.supportedFileAttributeViews()
+        then: "Because we're delegating in the default FS we should have the same views"
+            views == FileSystems.getDefault().supportedFileAttributeViews()
+    }
+
+    def "Building a given path"() {
+        given: "A remote temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+            File tmpDirectory = new File(System.getProperty("java.io.tmpdir"))
+        when: "Building a path inside this file system"
+            Path path = temporaryFileSystem.getPath("something","is","here")
+        and: "Building the java.io equivalent"
+            File something = new File(tmpDirectory,"something")
+            File is = new File(something,"is")
+            File here = new File(is,"here")
+        then: "The resulting path should be coherent"
+            path.toString() == here.getAbsolutePath()
+    }
+
+    def "Using regex to match a given path"() {
+        given: "A remote temporary file system"
+            FileSystem temporaryFileSystem = createTemporaryFileSystem()
+        when: "When asking whether the path matches the file system"
+           temporaryFileSystem.getPathMatcher("syntax:pattern")
+        then: "It should throw an exception because is not implemented yet"
+            thrown(UnsupportedOperationException)
+
+
     }
 
     def createTemporaryFileSystem() {

@@ -143,7 +143,7 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 */
 	@Override
 	public PathMatcher getPathMatcher(String syntaxAndPattern) {
-		return null;
+        throw new UnsupportedOperationException();
 	}
 
 }
