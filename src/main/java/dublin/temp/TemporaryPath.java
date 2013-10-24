@@ -33,8 +33,8 @@ public class TemporaryPath implements Path {
 
     private static final Path ROOT = Paths.get(System.getProperty("java.io.tmpdir"));
 
-    private URI universalPath;
-    private FileSystem temporalFileSystem;
+    private final URI universalPath;
+    private final FileSystem temporalFileSystem;
 
     public TemporaryPath(URI name, FileSystem temporalFileSystem) {
         this.universalPath = name;

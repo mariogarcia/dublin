@@ -17,6 +17,17 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
 
+apply plugin: 'pmd'
+apply plugin: 'codenarc'
+apply plugin: 'build-dashboard'
+
+pmd {
+
+   ruleSets = ["basic", "braces", "design"]
+   ignoreFailures = true
+
+}
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     mavenCentral()

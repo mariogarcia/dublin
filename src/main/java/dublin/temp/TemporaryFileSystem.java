@@ -17,11 +17,14 @@
 package dublin.temp;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.PathMatcher;
+import java.nio.file.WatchService;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,8 +32,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
-
-import dublin.core.AbstractFileSystem;
 
 /**
  *
@@ -41,9 +42,9 @@ import dublin.core.AbstractFileSystem;
  * @since 0.1
  *
  */
-public class TemporaryFileSystem extends AbstractFileSystem {
+public class TemporaryFileSystem extends FileSystem {
 
-    private TemporaryFileSystemProvider provider;
+    private final TemporaryFileSystemProvider provider;
 
     TemporaryFileSystem(TemporaryFileSystemProvider provider) {
         this.provider = provider;
@@ -61,7 +62,9 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	 * @see java.nio.file.FileSystem#close()
 	 */
 	@Override
-	public void close() throws IOException { }
+	public void close() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
 	/* (non-Javadoc)
 	 * @see java.nio.file.FileSystem#isOpen()
@@ -145,5 +148,21 @@ public class TemporaryFileSystem extends AbstractFileSystem {
 	public PathMatcher getPathMatcher(String syntaxAndPattern) {
         throw new UnsupportedOperationException();
 	}
+
+    /* (non-Javadoc)
+	 * @see java.nio.file.FileSystem#getUserPrincipalLookupService()
+	 */
+	@Override
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
+        return null;
+    }
+
+    /* (non-Javadoc)
+	 * @see java.nio.file.FileSystem#newWatchService()
+	 */
+	@Override
+    public WatchService newWatchService() {
+        return null;
+    }
 
 }

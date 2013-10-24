@@ -22,7 +22,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 public class TemporaryBaseFileAttributes implements BasicFileAttributes {
 
-    private File file;
+    private final File file;
 
     public TemporaryBaseFileAttributes(File file) {
         this.file = file;
