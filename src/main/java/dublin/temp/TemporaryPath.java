@@ -75,7 +75,21 @@ public class TemporaryPath implements Path {
 
         boolean isRoot = this.compareTo(getRoot()) == 0;
 
-		return isRoot ? null : this.getTemporalPathFromFile().getParent();
+        if (isRoot) {
+
+            return null;
+
+        }
+
+        URI relativeURI = URI.create("tmp://../");
+        URI parentUri = this.universalPath.relativize(relativeURI);
+        TemporaryPath parentPath =
+            new TemporaryPath(
+                parentUri,
+                this.temporalFileSystem
+            );
+
+		return parentPath;
 
 	}
 
@@ -187,7 +201,12 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public int compareTo(Path other) {
-		return this.getTemporalPathFromFile().compareTo(other);
+
+        if (other == null) {
+            return 1;
+        }
+
+		return this.toFile().toString().compareTo(other.toFile().toString());
 	}
 
 }

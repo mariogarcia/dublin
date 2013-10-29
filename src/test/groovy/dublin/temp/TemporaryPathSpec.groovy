@@ -62,6 +62,23 @@ class TemporaryPathSpec extends Specification {
             fileName == 'something.txt'
     }
 
+    def 'Getting the parent path from a given path'() {
+        given: 'An absolute path'
+            def rootPath = absolutePath.root
+            def relative = rootPath.resolve('something.txt')
+        when: 'Asking for the relative path parent'
+            def parent = relative.parent
+        then: 'Parent path should be the same path as the root path'
+            parent.toFile().toString() == rootPath.toFile().toString()
+    }
+
+    def 'Getting the parent path from the rootPath'() {
+        given: 'An absolute path'
+            def rootPath = absolutePath.root
+        expect: 'It has no parent'
+            rootPath.parent == null
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
