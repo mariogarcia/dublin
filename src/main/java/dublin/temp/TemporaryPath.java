@@ -31,19 +31,19 @@ import java.util.Iterator;
 
 public class TemporaryPath implements Path {
 
-    private static final Path ROOT = Paths.get(System.getProperty("java.io.tmpdir"));
+    private static final URI ROOT_URI = new File(System.getProperty("java.io.tmpdir")).toURI();
 
     private final URI universalPath;
     private final FileSystem temporalFileSystem;
 
-    public TemporaryPath(URI name, FileSystem temporalFileSystem) {
-        this.universalPath = name;
+    public TemporaryPath(URI uri, FileSystem temporalFileSystem) {
+        this.universalPath = uri;
         this.temporalFileSystem = temporalFileSystem;
     }
 
     public TemporaryPath(FileSystem temporalFileSystem) {
         this.temporalFileSystem = temporalFileSystem;
-        this.universalPath = ROOT.toUri();
+        this.universalPath = ROOT_URI;
     }
 
 	@Override
@@ -58,7 +58,7 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public Path getRoot() {
-		return ROOT;
+		return new TemporaryPath(ROOT_URI, this.temporalFileSystem);
 	}
 
 	@Override

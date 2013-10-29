@@ -40,6 +40,28 @@ class TemporaryPathSpec extends Specification {
             relativePath | false
     }
 
+    def 'Getting temporary root path'() {
+        given: 'A temporary file system'
+            def temporaryFileSystem = createTemporaryFileSystem()
+            def relative = new TemporaryPath(temporaryFileSystem)
+            def tmpdir = new File(System.getProperty('java.io.tmpdir'))
+        expect: 'The same root as if we were asking for the tmp dir'
+            relative.root.toFile() == tmpdir
+        and: 'Subsequents calls should return the same'
+            relative.root.root instanceof TemporaryPath
+            relative.root.root.toFile() == tmpdir
+    }
+
+    def 'Getting a given path file name'() {
+        given: 'An absolute path'
+            def rootPath = absolutePath.root
+            def relative = rootPath.resolve('something.txt')
+        when: 'Asking for the paths filename'
+            def fileName = relative.fileName.toString()
+        then: 'File name is only the last segment of the path'
+            fileName == 'something.txt'
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
