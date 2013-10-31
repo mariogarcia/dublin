@@ -28,6 +28,12 @@ pmd {
 
 }
 
+codenarc {
+    maxPriority1Violations = 1
+    maxPriority2Violations = 50
+    maxPriority3Violations = 150
+}
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     mavenCentral()
