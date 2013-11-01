@@ -79,6 +79,20 @@ class TemporaryPathSpec extends Specification {
             rootPath.parent == null
     }
 
+    def 'Get how many fragments are in the path'() {
+        given: 'A long path'
+            def path = Paths.get('tmp:/modules/first/something.txt')
+        expect: 'Four fragments. It usually includes protocol fragment'
+            path.nameCount == 4
+    }
+
+    def 'Get a given fragment literal by its position'() {
+        given: 'A long path'
+            def path = Paths.get('tmp:/modules/first/something.txt')
+        expect: 'To be first'
+            path.getName(2).toString() == 'first'
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
