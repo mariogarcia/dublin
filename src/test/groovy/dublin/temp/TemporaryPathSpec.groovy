@@ -93,6 +93,13 @@ class TemporaryPathSpec extends Specification {
             path.getName(2).toString() == 'first'
     }
 
+    def 'Get given subpath by passing start and end indexes'() {
+        given: 'A long path'
+            def path = Paths.get('tmp:/modules/first/something.txt')
+        expect: 'To be first'
+            path.subpath(1, 3).toString() == 'modules/first'
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
