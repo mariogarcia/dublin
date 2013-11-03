@@ -100,6 +100,13 @@ class TemporaryPathSpec extends Specification {
             path.subpath(1, 3).toString() == 'modules/first'
     }
 
+    def 'Checking whether a given path starts with a given path'() {
+        given: 'A long path'
+            def path = Paths.get('tmp:/modules/first/something.txt')
+        expect: 'the paths starts with'
+            path.startsWith('tmp:/modules')
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
