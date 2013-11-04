@@ -107,6 +107,13 @@ class TemporaryPathSpec extends Specification {
             path.startsWith('tmp:/modules')
     }
 
+    def 'Checking whether a given path ends with a given path'() {
+        given: 'A long path'
+            def path = Paths.get('tmp:/modules/first/something.txt')
+        expect: 'The path ends with'
+            path.endsWith('first/something.txt')
+    }
+
     def createTemporaryFileSystem() {
 
         URI temporaryFileURI = URI.create('tmp://authority')
