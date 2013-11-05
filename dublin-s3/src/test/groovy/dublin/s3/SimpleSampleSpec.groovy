@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception
 
 class SimpleSampleSpec extends Specification {
 
+    /*
     def 'Get a simple file from S3'() {
         given: 'A configured client'
             def s3Client = new AmazonS3Client()
@@ -20,5 +21,6 @@ class SimpleSampleSpec extends Specification {
         then: 'The retrieved response should be of type S3Object'
             thrown(AmazonS3Exception)
     }
+    */
 
 }
