@@ -1,15 +1,35 @@
 package dublin.temp
 
 import java.nio.file.Paths
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 
 import spock.lang.Specification
+import org.codehaus.groovy.runtime.InvokerHelper
 
 class PathCompatibilitySpec extends Specification {
 
     def pathType
     def scheme
+
+    def 'Building a new path only with the file system'() {
+        when: 'Building a path with passing it as parameter'
+            def testingPath = getAbsolutePath()
+        then: 'We should be able to ask whether it exists or not'
+            Files.exists(testingPath, LinkOption.NOFOLLOW_LINKS)
+    }
+
+    def 'Building a new path only with the file system and the URI'() {
+        given: 'The file system'
+            def fileSystem = createFileSystem()
+        when: 'Building a path with passing a URI and the file system as parameter'
+            def args = [specificationURI, fileSystem] as Object[]
+            def testingPath = InvokerHelper.invokeConstructorOf(pathType, args)
+        then: 'We should be able to ask whether it exists or not'
+            Files.exists(testingPath, LinkOption.NOFOLLOW_LINKS)
+    }
 
     def 'Checking whether a given path is absolute or not [absolutePath]'() {
         expect: 'All expectations succeed'
