@@ -175,7 +175,7 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public File toFile() {
-        return new File(this.universalPath);
+        return new File(this.universalPath.getPath());
 	}
 
     private Path getTemporalPathFromFile() {
