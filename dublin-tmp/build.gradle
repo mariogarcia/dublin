@@ -17,4 +17,6 @@
 
 dependencies {
 
+    testCompile project(":dublin-tck")
+
 }
