@@ -19,4 +19,6 @@ dependencies {
 
     compile 'com.amazonaws:aws-java-sdk:1.6.4'
 
+    testCompile project(":dublin-tck")
+
 }
