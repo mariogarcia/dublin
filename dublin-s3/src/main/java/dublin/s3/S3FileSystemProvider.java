@@ -65,27 +65,27 @@ public class S3FileSystemProvider extends FileSystemProvider {
 	public void createDirectory(Path dir, FileAttribute<?>... attrs)
 			throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void delete(Path path) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void copy(Path source, Path target, CopyOption... options)
 			throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void move(Path source, Path target, CopyOption... options)
 			throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class S3FileSystemProvider extends FileSystemProvider {
 	@Override
 	public void checkAccess(Path path, AccessMode... modes) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class S3FileSystemProvider extends FileSystemProvider {
 	public void setAttribute(Path path, String attribute, Object value,
 			LinkOption... options) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

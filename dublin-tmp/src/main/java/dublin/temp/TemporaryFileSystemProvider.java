@@ -1,5 +1,4 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -16,8 +15,13 @@
  */
 package dublin.temp;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URI;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
@@ -27,6 +31,7 @@ import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -105,7 +110,25 @@ public class TemporaryFileSystemProvider extends FileSystemProvider {
 	public SeekableByteChannel newByteChannel(Path path,
 			Set<? extends OpenOption> options, FileAttribute<?>... attrs)
 			throws IOException {
-        return Files.newByteChannel(path, options, attrs);
+
+        boolean isReadable = options.contains(StandardOpenOption.READ);
+        boolean isWriteable= options.contains(StandardOpenOption.WRITE);
+        File file = path.toFile();
+
+        if (isReadable && isWriteable) {
+            return new RandomAccessFile(file,"rw").getChannel();
+        }
+
+        if (isReadable) {
+            return new FileInputStream(file).getChannel();
+        }
+
+        if (isWriteable) {
+            return new FileOutputStream(file).getChannel();
+        }
+
+        throw new IOException("File is neither readable nor writeable");
+
 	}
 
 	/* (non-Javadoc)
