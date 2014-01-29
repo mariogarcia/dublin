@@ -19,6 +19,7 @@ allprojects {
 
     apply plugin: 'java'
     apply plugin: 'groovy'
+    apply plugin: 'maven'
 
     apply plugin: 'pmd'
     apply plugin: 'codenarc'
@@ -37,6 +38,13 @@ allprojects {
         maxPriority2Violations = 50
         maxPriority3Violations = 150
 
+    }
+
+    install {
+        repositories.mavenInstaller {
+            pom.groupId = 'dublin'
+            pom.version = '1.0.0-SNAPSHOT'
+        }
     }
 
     repositories {
