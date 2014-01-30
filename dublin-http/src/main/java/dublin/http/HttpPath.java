@@ -3,6 +3,7 @@ package dublin.http;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -10,99 +11,154 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Iterator;
 
 public class HttpPath implements Path {
 
+    private final URI universalPath;
+    private final FileSystem httpFileSystem;
+
+    public HttpPath(URI uri, FileSystem httpFileSystem) {
+        this.universalPath = uri;
+        this.httpFileSystem = httpFileSystem;
+    }
 
 	@Override
 	public FileSystem getFileSystem() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.httpFileSystem;
 	}
 
 	@Override
 	public boolean isAbsolute() {
-		// TODO Auto-generated method stub
-		return false;
+		return universalPath.isAbsolute();
 	}
 
 	@Override
 	public Path getRoot() {
-		// TODO Auto-generated method stub
-		return null;
+        return getPathFromURI(getURIFromSchemeAndHost());
 	}
+
+    private URI getURIFromSchemeAndHost() {
+
+        URI uri = null;
+
+        try {
+            uri = new URI(
+                universalPath.getScheme(),
+                universalPath.getHost(),
+                null,
+                null
+            );
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        return uri;
+    }
 
 	@Override
 	public Path getFileName() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getName(this.getNameCount() - 1);
 	}
 
 	@Override
 	public Path getParent() {
-		// TODO Auto-generated method stub
-		return null;
+        boolean isRoot = this.compareTo(getRoot()) == 0;
+
+        if (isRoot) {
+            return null;
+        }
+
+        URI relativeURI = URI.create("http://../");
+        URI parentURI = this.universalPath.relativize(relativeURI);
+        HttpPath parentPath =
+            new HttpPath(parentURI, this.httpFileSystem);
+
+		return parentPath;
 	}
 
 	@Override
 	public int getNameCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPathsInOrder().length;
 	}
 
 	@Override
 	public Path getName(int index) {
-		// TODO Auto-generated method stub
-		return null;
+        return subpath(index, index);
 	}
+
+    private String joinPathsWith(final List<String> paths, final String token) {
+        String result = "/";
+        for(String nextPath : paths) {
+            result += nextPath + "/";
+        }
+        return result;
+    }
+
+    private String[] getPathsInOrder() {
+        return this.universalPath.getPath().split("/");
+    }
 
 	@Override
 	public Path subpath(int beginIndex, int endIndex) {
-		// TODO Auto-generated method stub
-		return null;
+        List<String> paths = Arrays.asList(getPathsInOrder()).subList(beginIndex, endIndex);
+        String path = joinPathsWith(paths, "/");
+        URI resolvedURI = resolveURIWithPath(path);
+
+		return new HttpPath(resolvedURI, this.httpFileSystem);
 	}
+
+    private URI resolveURIWithPath(String path) {
+        URI resolvedURI = null;
+        try {
+            resolvedURI = new URI(
+                universalPath.getScheme(),
+                universalPath.getHost(),
+                path,
+                null
+            );
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        return resolvedURI;
+    }
 
 	@Override
 	public boolean startsWith(Path other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.toString().startsWith(other.toString());
 	}
 
 	@Override
 	public boolean startsWith(String other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.toString().startsWith(other);
 	}
 
 	@Override
 	public boolean endsWith(Path other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.toString().endsWith(other.toString());
 	}
 
 	@Override
 	public boolean endsWith(String other) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.toString().endsWith(other);
 	}
 
 	@Override
 	public Path normalize() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getPathFromURI(this.universalPath.normalize());
 	}
 
 	@Override
 	public Path resolve(Path other) {
-		// TODO Auto-generated method stub
-		return null;
+        return this.getPathFromURI(this.universalPath.resolve(other.toUri()));
 	}
 
 	@Override
 	public Path resolve(String other) {
-		// TODO Auto-generated method stub
-		return null;
+        return this.getPathFromURI(this.universalPath.resolve(other));
 	}
 
 	@Override
@@ -110,23 +166,28 @@ public class HttpPath implements Path {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	@Override
 	public Path resolveSibling(String other) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    	@Override
 	public Path relativize(Path other) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getPathFromURI(this.universalPath.relativize(other.toUri()));
 	}
+
+    private Path getPathFromURI(URI uri) {
+        return new HttpPath(uri, this.httpFileSystem);
+    }
+
+    public String toString() {
+        return this.toUri().toString();
+    }
 
 	@Override
 	public URI toUri() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.universalPath;
 	}
 
 	@Override
@@ -169,8 +230,7 @@ public class HttpPath implements Path {
 
 	@Override
 	public int compareTo(Path other) {
-		// TODO Auto-generated method stub
-		return 0;
+        return this.toString().compareTo(other.toString());
 	}
 
 }

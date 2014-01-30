@@ -74,7 +74,7 @@ public class HttpFileSystemProvider extends FileSystemProvider {
             URL urlToRead = new URL(path.toString());
             ReadableByteChannel channel = Channels.newChannel(urlToRead.openStream());
 
-            return channel;
+            return (SeekableByteChannel) channel;
         }
 
         throw new IOException("File is neither readable nor writeable");
@@ -98,8 +98,7 @@ public class HttpFileSystemProvider extends FileSystemProvider {
 	}
 
 	@Override
-	public void copy(Path source, Path target, CopyOption... options)
-			throws IOException {
+	public void copy(Path source, Path target, CopyOption... options) throws IOException{
 		throw new IOException("Not implemented yet");
 	}
 
@@ -132,7 +131,7 @@ public class HttpFileSystemProvider extends FileSystemProvider {
 	@Override
 	public <V extends FileAttributeView> V getFileAttributeView(Path path,
 			Class<V> type, LinkOption... options) {
-		throw new IOException("Not implemented yet");
+        return null;
 	}
 
 	@Override
