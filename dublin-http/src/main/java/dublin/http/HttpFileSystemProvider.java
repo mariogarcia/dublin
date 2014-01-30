@@ -3,6 +3,8 @@ package dublin.http;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
@@ -70,15 +72,58 @@ public class HttpFileSystemProvider extends FileSystemProvider {
             throw new IOException("Writing not implemented yet");
         }
 
-        if (isReadable) {
-            URL urlToRead = new URL(path.toString());
-            ReadableByteChannel channel = Channels.newChannel(urlToRead.openStream());
+        URL urlToRead = new URL(path.toString());
+        HttpSeekableByteChannel channel = new HttpSeekableByteChannel(urlToRead.openConnection());
 
-            return (SeekableByteChannel) channel;
+        return channel;
+	}
+
+    static class HttpSeekableByteChannel implements SeekableByteChannel {
+
+        private ReadableByteChannel readableChannel;
+        private URLConnection urlConnection;
+
+        public HttpSeekableByteChannel(URLConnection urlConnection)  {
+            this.urlConnection = urlConnection;
         }
 
-        throw new IOException("File is neither readable nor writeable");
-	}
+        public long position() {
+            return 0;
+        }
+
+        public SeekableByteChannel position(long newPosition) {
+            return null;
+        }
+
+        public int read(ByteBuffer dst) throws IOException {
+            if (readableChannel == null) {
+                this.readableChannel =
+                    Channels.newChannel(urlConnection.getURL().openStream());
+            }
+            return this.readableChannel.read(dst);
+        }
+
+        public long size() {
+            return urlConnection.getContentLengthLong();
+        }
+
+        public SeekableByteChannel truncate(long size) {
+            return null;
+        }
+
+        public int write(ByteBuffer src) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void close() throws IOException {
+            this.readableChannel.close();
+        }
+
+        public boolean isOpen() {
+            return this.readableChannel.isOpen();
+        }
+
+    }
 
 	@Override
 	public DirectoryStream<Path> newDirectoryStream(Path dir,
@@ -137,7 +182,15 @@ public class HttpFileSystemProvider extends FileSystemProvider {
 	@Override
 	public <A extends BasicFileAttributes> A readAttributes(Path path,
 			Class<A> type, LinkOption... options) throws IOException {
-		throw new IOException("Not implemented yet");
+
+        URLConnection connection = null;
+        A baseAttributes = null;
+
+        connection = path.toUri().toURL().openConnection();
+        baseAttributes = (A) new HttpBaseFileAttributes(connection);
+
+        return baseAttributes;
+
 	}
 
 	@Override

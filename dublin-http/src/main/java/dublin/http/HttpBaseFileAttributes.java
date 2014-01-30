@@ -1,62 +1,75 @@
 package dublin.http;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URISyntaxException;
+
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
 public class HttpBaseFileAttributes implements BasicFileAttributes {
 
+    private final URLConnection urlConnection;
+
+    public HttpBaseFileAttributes(URLConnection urlConnection) {
+        this.urlConnection = urlConnection;
+    }
+
 	@Override
 	public FileTime lastModifiedTime() {
-		// TODO Auto-generated method stub
-		return null;
+		return FileTime.fromMillis(this.urlConnection.getLastModified());
 	}
 
 	@Override
 	public FileTime lastAccessTime() {
-		// TODO Auto-generated method stub
-		return null;
+        throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public FileTime creationTime() {
-		// TODO Auto-generated method stub
-		return null;
+        throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean isRegularFile() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isDirectory() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isSymbolicLink() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isOther() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public long size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.urlConnection.getContentLengthLong();
 	}
 
 	@Override
 	public Object fileKey() {
-		// TODO Auto-generated method stub
-		return null;
+
+		URI internalURI = null;
+
+        try {
+
+            internalURI = this.urlConnection.getURL().toURI();
+
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        return internalURI;
 	}
 
 }

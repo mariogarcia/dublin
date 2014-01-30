@@ -4,59 +4,57 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
+import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class HttpFileSystem extends FileSystem {
 
-    public HttpFileSystem(FileSystemProvider provider) {
+    private final HttpFileSystemProvider provider;
 
-
+    public HttpFileSystem(HttpFileSystemProvider provider) {
+        this.provider = provider;
     }
 
 	@Override
 	public FileSystemProvider provider() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.provider;
 	}
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean isOpen() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isReadOnly() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public String getSeparator() {
-		// TODO Auto-generated method stub
-		return null;
+		return "/";
 	}
 
 	@Override
 	public Iterable<Path> getRootDirectories() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Path>();
 	}
 
 	@Override
 	public Iterable<FileStore> getFileStores() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<FileStore>();
 	}
 
 	@Override
@@ -67,14 +65,27 @@ public class HttpFileSystem extends FileSystem {
 
 	@Override
 	public Path getPath(String first, String... more) {
-		// TODO Auto-generated method stub
-		return null;
+        return new HttpPath(createURIFrom(first, more), this);
 	}
+
+    private URI createURIFrom(String host, String... paths) {
+
+        URI resolvedURI = null;
+
+        try {
+
+            resolvedURI = new URI(Paths.get(host, paths).toString());
+
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        return resolvedURI;
+    }
 
 	@Override
 	public PathMatcher getPathMatcher(String syntaxAndPattern) {
-		// TODO Auto-generated method stub
-		return null;
+        throw new UnsupportedOperationException();
 	}
 
 	@Override
