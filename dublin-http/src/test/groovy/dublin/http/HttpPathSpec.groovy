@@ -29,4 +29,12 @@ class HttpPathSpec extends PathCompatibilitySpec {
         then: 'We should have copied the resource from a remote url'
             tmpFile.toFile().exists()
     }
+
+    // def 'Copying from http to tmp'() {
+    //     given: 'A path'
+    //         Path google = from('http://www.google.com').to('tmp://dublin/google.html')
+    //     expect: 'We should have copied the resource from a remote url'
+    //         google.toFile().exists()
+    // }
+
 }
