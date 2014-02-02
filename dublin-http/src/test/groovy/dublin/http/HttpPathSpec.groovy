@@ -1,5 +1,6 @@
 package dublin.http
 
+import static dublin.core.Dublin.from
 import static java.nio.file.Paths.get
 import static java.nio.file.Files.copy
 import static java.nio.file.Files.createTempDirectory
@@ -23,12 +24,8 @@ class HttpPathSpec extends PathCompatibilitySpec {
     }
 
     def 'Get a given resource from an URL'() {
-        given: 'A file system'
-            URI fsURI = URI.create('http:///')
-            URI googleURI = URI.create('http://www.google.com')
-            HttpFileSystem httpFileSystem = FileSystems.getFileSystem(fsURI)
-        and: 'A couple of paths for copying information to each other'
-            Path google = httpFileSystem.getPath(googleURI.toString())
+        given: 'A couple of paths for copying information to each other'
+            Path google = from("http://www.google.com")
             Path tmpFile = get(
                 createTempDirectory('dublin').toString(),
                 get('google.html').toString()
@@ -39,4 +36,7 @@ class HttpPathSpec extends PathCompatibilitySpec {
             tmpFile.toFile().exists()
     }
 
+    def getSpecificationURI() {
+        URI.create("http://www.google.com")
+    }
 }

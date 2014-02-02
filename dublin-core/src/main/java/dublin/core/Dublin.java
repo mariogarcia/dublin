@@ -39,6 +39,9 @@ public final class Dublin {
         String scheme = uri.getScheme();
         String schemeFragment = scheme + COLON;
 
+        String root = resolveRoot(scheme, uri.getAuthority());
+        String path = uri.getPath();
+
         if (scheme == null) {
             throw new IOException("Can't resolve FileSystem without scheme info");
         }
@@ -49,11 +52,13 @@ public final class Dublin {
         FileSystem fileSystem = FileSystems.getFileSystem(fsURI);
 
      /* Once we get the file system we can resolve the full path */
-        Path path = fileSystem.getPath(
-            removeFirst(uri.toString(), schemeFragment)
-        );
+        Path resolvedPath = fileSystem.getPath(root).resolve(path);
 
-        return path;
+        return resolvedPath;
+    }
+
+    private static String resolveRoot(String scheme, String authority) {
+        return scheme + COLON + SLASH + SLASH + authority;
     }
 
     private static String removeFirst(String from, String toRemove) {

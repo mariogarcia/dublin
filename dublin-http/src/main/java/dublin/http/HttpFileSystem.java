@@ -10,6 +10,7 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,7 +38,6 @@ public class HttpFileSystem extends FileSystem {
 		return true;
 	}
 
-	@Override
 	public boolean isReadOnly() {
 		return true;
 	}
@@ -49,7 +49,19 @@ public class HttpFileSystem extends FileSystem {
 
 	@Override
 	public Iterable<Path> getRootDirectories() {
-		return new ArrayList<Path>();
+        Path uniqueRoot = null;
+        Iterable<Path> result = new ArrayList<Path>();
+
+        try {
+
+            uniqueRoot = new HttpPath(new URI(HttpFileSystemProvider.SCHEME), this).getRoot();
+            result = Arrays.asList(uniqueRoot);
+
+        } catch (URISyntaxException exception) {
+            exception.printStackTrace();
+        }
+
+		return result;
 	}
 
 	@Override
@@ -69,18 +81,7 @@ public class HttpFileSystem extends FileSystem {
 	}
 
     private URI createURIFrom(String host, String... paths) {
-
-        URI resolvedURI = null;
-
-        try {
-
-            resolvedURI = new URI(Paths.get(host, paths).toString());
-
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        return resolvedURI;
+        return URI.create(host);
     }
 
 	@Override

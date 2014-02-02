@@ -16,6 +16,8 @@
  */
 package dublin.tck
 
+import static dublin.core.Dublin.from
+
 import java.nio.file.Paths
 import java.nio.file.Files
 import java.nio.file.LinkOption
@@ -109,7 +111,7 @@ class PathCompatibilitySpec extends Specification {
         given: 'A long path'
             def path = Paths.get("${scheme}:/modules/first/something.txt")
         expect: 'the paths starts with'
-            path.startsWith('tmp:/modules')
+            path.startsWith("$scheme:/modules")
     }
 
     def 'Checking whether a given path ends with a given path'() {
@@ -138,26 +140,15 @@ class PathCompatibilitySpec extends Specification {
     }
 
     def createFileSystem() {
-
-        FileSystems.newFileSystem(specificationURI, [:] )
-
+        return FileSystems.getFileSystem(specificationURI)
     }
 
     def getAbsolutePath() {
-
-        createFileSystem().rootDirectories.first()
-
+        return from(specificationURI)
     }
 
     def getRelativePath() {
-
-        Paths.get("${scheme}://something")
-
+        Paths.get("something")
     }
 
-    def getSpecificationURI() {
-
-        URI.create("${scheme}://authority")
-
-    }
 }

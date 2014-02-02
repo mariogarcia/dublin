@@ -50,4 +50,10 @@ class TemporaryPathSpec extends PathCompatibilitySpec {
             localSystemFile.toFile().exists() == true
     }
 
+    def getSpecificationURI() {
+
+        URI.create("${scheme}://authority")
+
+    }
+
 }

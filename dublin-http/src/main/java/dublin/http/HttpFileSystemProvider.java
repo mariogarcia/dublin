@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class HttpFileSystemProvider extends FileSystemProvider {
 
-    private static final String SCHEME = "http";
+    public static final String SCHEME = "http";
 
 	@Override
 	public String getScheme() {
