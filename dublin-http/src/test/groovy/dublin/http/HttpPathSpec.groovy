@@ -24,8 +24,9 @@ class HttpPathSpec extends PathCompatibilitySpec {
 
     def 'Get a given resource from an URL'() {
         given: 'A file system'
+            URI fsURI = URI.create('http:///')
             URI googleURI = URI.create('http://www.google.com')
-            HttpFileSystem httpFileSystem = FileSystems.getFileSystem(googleURI)
+            HttpFileSystem httpFileSystem = FileSystems.getFileSystem(fsURI)
         and: 'A couple of paths for copying information to each other'
             Path google = httpFileSystem.getPath(googleURI.toString())
             Path tmpFile = get(
