@@ -97,8 +97,8 @@ public class HttpFileSystemProvider extends FileSystemProvider {
 
         public int read(ByteBuffer dst) throws IOException {
             if (readableChannel == null) {
-                this.readableChannel =
-                    Channels.newChannel(urlConnection.getURL().openStream());
+                URL readFrom = urlConnection.getURL();
+                readableChannel = Channels.newChannel(readFrom.openStream());
             }
             return this.readableChannel.read(dst);
         }
