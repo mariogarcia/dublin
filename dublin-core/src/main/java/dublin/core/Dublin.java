@@ -21,12 +21,9 @@ import java.nio.file.FileSystems;
  */
 public final class Dublin {
 
-    /**
-     * The UnixFileSystemProvider expects just the part
-     * identifying the file system. If you oass a
-     * complete URI it will complain throwing an exception
-     */
-    private static final String JDK_FILE_PROVIDER_HACK = ":/";
+    private static final String COLON = ":";
+    private static final String SLASH = "/";
+    private static final String EMPTY = "";
 
     /**
      * This method resolves a given file system by the URI passed as
@@ -37,18 +34,30 @@ public final class Dublin {
      * @param URI uri The uri we want to resolve
      * @return the resolved path
      */
-    public static Path from(URI uri) {
+    public static Path from(final URI uri) throws IOException {
 
         String scheme = uri.getScheme();
-        URI fsURI = URI.create(scheme + JDK_FILE_PROVIDER_HACK);
+        String schemeFragment = scheme + COLON;
+
+        if (scheme == null) {
+            throw new IOException("Can't resolve FileSystem without scheme info");
+        }
+
+        URI fsURI = URI.create(schemeFragment + SLASH);
      /* In order to get the file system we only pass the scheme plus
       * the minimum required info */
         FileSystem fileSystem = FileSystems.getFileSystem(fsURI);
 
      /* Once we get the file system we can resolve the full path */
-        Path path = fileSystem.getPath(uri.toString().substring(5));
+        Path path = fileSystem.getPath(
+            removeFirst(uri.toString(), schemeFragment)
+        );
 
         return path;
+    }
+
+    private static String removeFirst(String from, String toRemove) {
+        return from.replaceFirst(toRemove, EMPTY);
     }
 
     /**
@@ -60,7 +69,7 @@ public final class Dublin {
      * @param String uri The uri we want to resolve
      * @return the resolved path
      */
-    public static Path from(String uri) {
+    public static Path from(String uri) throws IOException {
         return from(URI.create(uri));
     }
 
