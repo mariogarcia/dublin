@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
@@ -81,34 +82,35 @@ public class HttpPath implements Path {
 
 	@Override
 	public int getNameCount() {
-		return getPathsInOrder().length;
+		return getInternalPath().getNameCount();
 	}
 
 	@Override
 	public Path getName(int index) {
-        return subpath(index, index);
+        return this.subpath(index, index + 1);
 	}
-
-    private String joinPathsWith(final List<String> paths, final String token) {
-        String result = "/";
-        for(String nextPath : paths) {
-            result += nextPath + "/";
-        }
-        return result;
-    }
-
-    private String[] getPathsInOrder() {
-        return this.universalPath.getPath().split("/");
-    }
 
 	@Override
 	public Path subpath(int beginIndex, int endIndex) {
-        List<String> paths = Arrays.asList(getPathsInOrder()).subList(beginIndex, endIndex);
-        String path = joinPathsWith(paths, "/");
-        URI resolvedURI = resolveURIWithPath(path);
+        int count = getNameCount() + 1;
 
-		return new HttpPath(resolvedURI, this.httpFileSystem);
+        if (beginIndex < 0 || endIndex > (count + 1)) {
+            throw new IllegalArgumentException("Index out of the bounds of the path");
+        }
+
+        return getInternalPath().subpath(beginIndex, endIndex);
 	}
+
+    private Path getInternalPath() {
+        return Paths.get(this.universalPath.getPath().toString());
+    }
+
+    private URI getFileSystemRepresentation() {
+        return URI.create(
+           this.universalPath.getScheme() + "://" +
+           this.universalPath.getAuthority() + "/"
+        );
+    }
 
     private URI resolveURIWithPath(String path) {
         URI resolvedURI = null;
@@ -153,13 +155,23 @@ public class HttpPath implements Path {
 
 	@Override
 	public Path resolve(Path other) {
-        return this.getPathFromURI(this.universalPath.resolve(other.toUri()));
+        return this.getPathFromURI(resolvePath(this.universalPath, other));
 	}
 
 	@Override
 	public Path resolve(String other) {
-        return this.getPathFromURI(this.universalPath.resolve(other));
+        return this.resolve(Paths.get(other));
 	}
+
+    private URI resolvePath(URI uri, Path path) {
+        URI fileSystemFragment =
+            URI.create(
+                uri.getScheme() + "://" + uri.getAuthority() + "/"
+            );
+        Path pathFragment = Paths.get(uri.getPath()).resolve(path);
+
+        return fileSystemFragment.resolve(pathFragment.toString());
+    }
 
 	@Override
 	public Path resolveSibling(Path other) {
