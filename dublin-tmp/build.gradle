@@ -20,3 +20,8 @@ dependencies {
     testCompile project(":dublin-tck")
 
 }
+
+task(console, dependsOn: 'classes', type: JavaExec) {
+    main = 'groovy.ui.Console'
+    classpath = sourceSets.main.runtimeClasspath
+    }

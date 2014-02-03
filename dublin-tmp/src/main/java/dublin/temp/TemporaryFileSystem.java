@@ -16,6 +16,7 @@
  */
 package dublin.temp;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileStore;
@@ -96,19 +97,10 @@ public class TemporaryFileSystem extends FileSystem {
 	@Override
 	public Iterable<Path> getRootDirectories() {
 
-        Path uniqueRoot = null;
-        Iterable<Path> result = new ArrayList<Path>();
+        Path uniqueRoot = new TemporaryPath(new File(System.getProperty("java.io.tmpdir")).toURI(), this);
+        Iterable<Path> result = Arrays.asList(uniqueRoot);
 
-        try {
-
-            uniqueRoot = new TemporaryPath(new URI(TemporaryFileSystemProvider.SCHEME), this).getRoot();
-            result = Arrays.asList(uniqueRoot);
-
-        } catch (URISyntaxException exception) {
-            exception.printStackTrace();
-        }
-
-		return result;
+        return result;
 
 	}
 
@@ -134,10 +126,14 @@ public class TemporaryFileSystem extends FileSystem {
 	@Override
 	public Path getPath(String first, String... more) {
 
-        Path root = new TemporaryPath(this);
-        Path builtPath = Paths.get(root.toFile().getAbsolutePath(), first);
+        Path fileSystemRoot = new TemporaryPath(this);
+        Path root = Paths.get(fileSystemRoot.toFile().getAbsolutePath(), first);
+        Path path = Paths.get("",more);
+        Path reso = root.resolve(path);
 
-		return Paths.get(builtPath.toString(), more);
+        System.out.println(reso);
+
+		return reso;
 
 	}
 

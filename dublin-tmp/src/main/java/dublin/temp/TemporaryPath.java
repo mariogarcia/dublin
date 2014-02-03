@@ -19,6 +19,7 @@ package dublin.temp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -58,16 +59,29 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public Path getRoot() {
-		return new TemporaryPath(ROOT_URI, this.temporalFileSystem);
+		return new TemporaryPath(getURIFromSchemeAndHost(), this.temporalFileSystem);
 	}
 
+    private URI getURIFromSchemeAndHost() {
+
+        URI uri = null;
+
+        try {
+            uri = new URI(
+                universalPath.getScheme(),
+                universalPath.getHost(),
+                null,
+                null
+            );
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        return uri;
+    }
 	@Override
 	public Path getFileName() {
-
-        int nameCount = this.getNameCount();
-
-		return this.getName(nameCount - 1);
-
+		return this.getName(getNameCount() - 1);
 	}
 
 	@Override
@@ -76,9 +90,7 @@ public class TemporaryPath implements Path {
         boolean isRoot = this.compareTo(getRoot()) == 0;
 
         if (isRoot) {
-
             return null;
-
         }
 
         URI relativeURI = URI.create("tmp://../");
@@ -95,53 +107,73 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public int getNameCount() {
-		return this.getTemporalPathFromFile().getNameCount();
+		return this.getInternalPath().getNameCount();
 	}
+
+    private Path getInternalPath() {
+        return Paths.get(this.universalPath.getPath().toString());
+    }
 
 	@Override
 	public Path getName(int index) {
-		return this.getTemporalPathFromFile().getName(index);
+		return this.subpath(index, index + 1);
 	}
 
 	@Override
 	public Path subpath(int beginIndex, int endIndex) {
-		return this.getTemporalPathFromFile().subpath(beginIndex, endIndex);
+        int count = getNameCount() + 1;
+
+        if (beginIndex < 0 || endIndex > (count + 1)) {
+            throw new IllegalArgumentException("Index out of the bounds of the path");
+        }
+
+        return getInternalPath().subpath(beginIndex, endIndex);
 	}
 
 	@Override
 	public boolean startsWith(Path other) {
-		return this.getTemporalPathFromFile().startsWith(other);
+		return this.toString().startsWith(other.toString());
 	}
 
 	@Override
 	public boolean startsWith(String other) {
-		return this.getTemporalPathFromFile().startsWith(other);
+		return this.toString().startsWith(other);
 	}
 
 	@Override
 	public boolean endsWith(Path other) {
-		return this.getTemporalPathFromFile().endsWith(other);
+		return this.toString().endsWith(other.toString());
 	}
 
 	@Override
 	public boolean endsWith(String other) {
-		return this.getTemporalPathFromFile().endsWith(other);
+		return this.toString().endsWith(other);
 	}
 
 	@Override
 	public Path normalize() {
-		return this.getTemporalPathFromFile().normalize();
+		return this.getPathFromURI(this.universalPath.normalize());
 	}
 
 	@Override
 	public Path resolve(Path other) {
-		return this.getTemporalPathFromFile().resolve(other);
+        return this.getPathFromURI(resolvePath(this.universalPath, other));
 	}
 
 	@Override
 	public Path resolve(String other) {
-		return this.getTemporalPathFromFile().resolve(other);
+        return this.resolve(Paths.get(other));
 	}
+
+    private URI resolvePath(URI uri, Path path) {
+        URI fileSystemFragment =
+            URI.create(
+                uri.getScheme() + "://" + uri.getAuthority() + "/"
+            );
+        Path pathFragment = Paths.get(uri.getPath()).resolve(path);
+
+        return fileSystemFragment.resolve(pathFragment.toString());
+    }
 
 	@Override
 	public Path resolveSibling(Path other) {
@@ -158,19 +190,22 @@ public class TemporaryPath implements Path {
 		return this.getTemporalPathFromFile().relativize(other);
 	}
 
+    private Path getPathFromURI(URI uri) {
+        return new TemporaryPath(uri, this.getFileSystem());
+    }
 	@Override
 	public URI toUri() {
-		return this.getTemporalPathFromFile().toUri();
+        return this.universalPath;
 	}
 
 	@Override
 	public Path toAbsolutePath() {
-		return this.getTemporalPathFromFile().toAbsolutePath();
+        return this.getPathFromURI(this.universalPath);
 	}
 
 	@Override
 	public Path toRealPath(LinkOption... options) throws IOException {
-		return this.getTemporalPathFromFile().toRealPath(options);
+        return null;
 	}
 
 	@Override

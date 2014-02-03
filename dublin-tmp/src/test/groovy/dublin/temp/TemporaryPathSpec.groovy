@@ -18,15 +18,14 @@ package dublin.temp
 
 import java.nio.file.Files
 import java.nio.file.Paths
+import dublin.core.Dublin
 import dublin.tck.PathCompatibilitySpec
 
 class TemporaryPathSpec extends PathCompatibilitySpec {
 
     def setup() {
-
         pathType = TemporaryPath
         scheme = 'tmp'
-
     }
 
     def 'Getting root path'() {
@@ -43,7 +42,7 @@ class TemporaryPathSpec extends PathCompatibilitySpec {
     def 'Copying a temporary file NIO way'() {
         given: 'A temporal source and a local destination'
             def localSystemFile = Files.createTempFile('dublin_test', 'txt')
-            def temporalSystemPath = Paths.get("tmp://something.txt")
+            def temporalSystemPath = Dublin.from("tmp://something.txt")
         when: 'Copying to another file in the local system'
             Files.copy(temporalSystemPath, localSystemFile)
         then: 'It should work and the destination should exist'
@@ -51,9 +50,7 @@ class TemporaryPathSpec extends PathCompatibilitySpec {
     }
 
     def getSpecificationURI() {
-
-        URI.create("${scheme}://authority")
-
+        return URI.create("${scheme}://authority")
     }
 
 }

@@ -85,6 +85,10 @@ public class HttpPath implements Path {
 		return getInternalPath().getNameCount();
 	}
 
+    private Path getInternalPath() {
+        return Paths.get(this.universalPath.getPath().toString());
+    }
+
 	@Override
 	public Path getName(int index) {
         return this.subpath(index, index + 1);
@@ -100,10 +104,6 @@ public class HttpPath implements Path {
 
         return getInternalPath().subpath(beginIndex, endIndex);
 	}
-
-    private Path getInternalPath() {
-        return Paths.get(this.universalPath.getPath().toString());
-    }
 
     private URI getFileSystemRepresentation() {
         return URI.create(
