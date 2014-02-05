@@ -41,12 +41,12 @@ class TemporaryPathSpec extends PathCompatibilitySpec {
 
     def 'Copying a temporary file NIO way'() {
         given: 'A temporal source and a local destination'
-            def localSystemFile = Files.createTempFile('dublin_test', 'txt')
+            def localSystemFilePath = new File(System.getProperty("java.io.tmpdir"), "${new Date().time}").toPath()
             def temporalSystemPath = Dublin.from("tmp://something.txt")
         when: 'Copying to another file in the local system'
-            Files.copy(temporalSystemPath, localSystemFile)
+            Files.copy(temporalSystemPath, localSystemFilePath)
         then: 'It should work and the destination should exist'
-            localSystemFile.toFile().exists() == true
+            localSystemFilePath.toFile().exists() == true
     }
 
     def getSpecificationURI() {

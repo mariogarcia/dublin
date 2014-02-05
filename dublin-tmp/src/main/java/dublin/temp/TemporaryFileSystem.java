@@ -125,16 +125,7 @@ public class TemporaryFileSystem extends FileSystem {
 	 */
 	@Override
 	public Path getPath(String first, String... more) {
-
-        Path fileSystemRoot = new TemporaryPath(this);
-        Path root = Paths.get(fileSystemRoot.toFile().getAbsolutePath(), first);
-        Path path = Paths.get("",more);
-        Path reso = root.resolve(path);
-
-        System.out.println(reso);
-
-		return reso;
-
+        return new TemporaryPath(URI.create(first), this);
 	}
 
 	/* (non-Javadoc)
