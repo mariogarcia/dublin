@@ -157,7 +157,9 @@ public class TemporaryPath implements Path {
 
 	@Override
 	public Path resolve(Path other) {
-        return this.getPathFromURI(resolvePath(this.universalPath, other));
+        return this.getPathFromURI(
+            resolvePath(this.universalPath, other)
+        );
 	}
 
 	@Override
@@ -171,8 +173,11 @@ public class TemporaryPath implements Path {
                 uri.getScheme() + "://" + uri.getAuthority() + "/"
             );
         Path pathFragment = Paths.get(uri.getPath()).resolve(path);
+            System.out.println("A:" + pathFragment.toString());
+        URI pathResult = fileSystemFragment.resolve(pathFragment.toString());
+            System.out.println("B:" + pathResult.toString());
 
-        return fileSystemFragment.resolve(pathFragment.toString());
+        return pathResult;
     }
 
 	@Override
@@ -233,6 +238,10 @@ public class TemporaryPath implements Path {
 	public Iterator<Path> iterator() {
 		return this.getTemporalPathFromFile().iterator();
 	}
+
+    public String toString() {
+        return this.universalPath.toString();
+    }
 
 	@Override
 	public int compareTo(Path other) {
