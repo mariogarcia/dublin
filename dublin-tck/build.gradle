@@ -1,7 +1,0 @@
-
-dependencies {
-
-    compile project(':dublin-core')
-    compile 'org.spockframework:spock-core:0.7-groovy-2.0'
-
-}

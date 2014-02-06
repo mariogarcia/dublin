@@ -1,2 +1,2 @@
 
-include 'dublin-core', 'dublin-tck', 'dublin-tmp', 'dublin-http'
+include 'dublin-core'
