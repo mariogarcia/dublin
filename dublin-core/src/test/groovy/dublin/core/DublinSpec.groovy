@@ -1,6 +1,6 @@
 package dublin.core;
 
-import static dublin.core.Dublin.from;
+import static dublin.core.D.at
 
 import spock.lang.Unroll
 import spock.lang.Specification
@@ -14,20 +14,24 @@ class DublinSpec extends Specification {
 
     def 'Building mounting points on Dublin and copying a local file into it'() {
         given: 'Two different FS'
-            def localFileSystem = at(fileParentDirURI).build()
-            def dublinFileSystem=
-                at("dublin://hal/").
-                    mount('tmp://simple/', on("/t/")).
-                    mount('ram://simple/', on("/r/")).
-                build()
-        when: 'Copying a given local file to dublin mappings'
-            FileObject dublinFileObject = dublinFileSystem.resolveFile('/t/file.txt')
-            FileObject localFileObject = localFileSystem.resolveFile('file.txt').
-
-            localFileObject.moveTo(dublinFileObject)
-        then: 'Both paths can be resolved properly'
-            dublinFileObject.exists()
-            localFileObject.exists()
+            def local =
+                at('file://src/test/resources/file.txt')
+            def dublin =
+                at("dublin://hal/") {
+                    mount 'tmp://simple/' on '/tmp/'
+                    mount 'ram://simple/' on '/ram/'
+                }
+        and: 'Establishing which files are source and destination'
+            FileObject src = local.resolve('file.txt')
+            FileObject dst =
+                dublin.
+                    resolve('/t/').
+                    resolve('file.txt')
+        when: 'Copying source to destination'
+            src >> dst
+        then: 'Both paths can should exist'
+            dst.exists()
+            src.exists()
     }
 
     def 'Failing to get a filesystem because lack of scheme'() {
@@ -39,9 +43,9 @@ class DublinSpec extends Specification {
 
     def 'Once you have got the first path. Can you resolve the rest ?'() {
         when: 'Building root path'
-            FileObject simplePath = at(fileParentDirURI)
+            def testFS = at(fileParentDirURI)
         then: 'We should be able to resolve any files from it'
-            simplePath.resolveFile('file.txt').exists()
+            testFS.resolveFile('file.txt').exists()
     }
 
     URI getFileParentDirURI() {
